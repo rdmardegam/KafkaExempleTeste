@@ -38,7 +38,7 @@ public class ProducerController {
 	@GetMapping(value = "/produzir")
 	public Evento getTest() {
 		TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
-		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC")); 
 		
 //		//TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
 //		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -60,6 +60,7 @@ public class ProducerController {
             /*.deserializers(new LocalDateDeserializer(new DateTimeFormatterBuilder()
                 .appendPattern("dd/MM/yyyy").toFormatter())
             		)*/
+				
             .serializationInclusion(JsonInclude.Include.NON_NULL)
             .serializationInclusion(JsonInclude.Include.NON_EMPTY)
             .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -86,8 +87,11 @@ public class ProducerController {
              build();
 			
 			// Garante a entrega atraves do GET
+			/*SendResult<String, Evento> result =  
+					kafkaTemplate.send("EVENTO-CARTAO-2", evento.getTipoCartao(), evento).get();*/
+			
 			SendResult<String, Evento> result =  
-					kafkaTemplate.send("EVENTO-CARTAO-2", evento.getTipoCartao(), evento).get();
+					kafkaTemplate.send("EVENTO-CARTAO", evento.getTipoCartao(), evento).get();
 			
 //			SendResult<String, Evento> result =  
 //					kafkaTemplate.send("EVENTO-CARTAO", evento.getTipoCartao(), event).get();

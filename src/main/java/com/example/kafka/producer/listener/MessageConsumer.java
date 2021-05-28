@@ -13,9 +13,9 @@ import com.example.kafka.producer.model.Evento;
 @Component
 public class MessageConsumer {
 	private static final Logger log = LogManager.getLogger(MessageConsumer.class);
-    private static final String TOPIC = "EVENTO-CARTAO-2";
+    private static final String TOPIC = "EVENTO-CARTAO";
 
-    @KafkaListener(topics = TOPIC, groupId ="consumer_group1")
+   // @KafkaListener(topics = TOPIC, groupId ="consumer_group1")
     public void messageListener(ConsumerRecord consumerRecord, @Payload Evento event, Acknowledgment ack) {
 
         /*String key = consumerRecord.key();
