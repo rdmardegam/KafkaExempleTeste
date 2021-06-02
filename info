@@ -1,43 +1,150 @@
-public static void main(String[] args) throws Exception {
+package com.example.kafka.producer.mastercard.test;
+
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+import com.mastercard.developer.oauth.OAuth;
+import com.mastercard.developer.utils.AuthenticationUtils;
+
+public class Example_mdes_system_status {
+
+	
+//	 public static void main(String[] args) throws Exception {
+//
+//		 
+//		 
+//		    String consumerKey = "your consumer key";   // You should copy this from "My Keys" on your project page e.g. UTfbhDCSeNYvJpLL5l028sWL9it739PYh6LU5lZja15xcRpY!fd209e6c579dc9d7be52da93d35ae6b6c167c174690b72fa
+//		    String keyAlias = "keyalias";   // For production: change this to the key alias you chose when you created your production key
+//		    String keyPassword = "keystorepassword";   // For production: change this to the key alias you chose when you created your production key
+//		    InputStream is = new FileInputStream("path to your .p12 private key file"); // e.g. /Users/yourname/project/sandbox.p12 | C:\Users\yourname\project\sandbox.p12
+//		    ApiConfig.setAuthentication(new OAuthAuthentication(consumerKey, is, keyAlias, keyPassword));   // You only need to set this once
+//		    ApiConfig.setDebug(true);   // Enable http wire logging
+//		    ApiConfig.setSandbox(true); // For production: use ApiConfig.setSandbox(false);
+//
+//		    try {
+//		      RequestMap map = new RequestMap();
+//
+//		      SystemStatus response = SystemStatus.query(map);
+//		      out(response, "SystemStatusResponse.CommentText"); //-->&lt;p&gt;&lt;b&gt;The MDES Customer Service Application has been updated as follows:&lt;/b&gt;&lt;br&gt;&amp;#160;&amp;#8226;&amp;#160;&amp;#160;The text &#39;UTC&#39; (Coordinated Universal Time) will be displayed next to each date/time stamp to make date/time stamp more obvious.&lt;/p&gt;
+//
+//		    } catch (ApiException e) {
+//		      err("HttpStatus: "+e.getHttpStatus());
+//		      err("Message: "+e.getMessage());
+//		      err("ReasonCode: "+e.getReasonCode());
+//		      err("Source: "+e.getSource());
+//		    }
+//		  }
+//
+//		  public static void out(SmartMap response, String key) {
+//		    System.out.println(key+"-->"+response.get(key));
+//		  }
+//
+//		  public static void out(Map<String,Object> map, String key) {
+//		    System.out.println(key+"--->"+map.get(key));
+//		  }
+//
+//		  public static void err(String message) {
+//		    System.err.println(message);
+//		  }
+	
+	
+//	public static void main(String[] args) throws UnrecoverableKeyException, KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+//		
+//		ApiClient client = new ApiClient();
+//		Builder httpClientBuilder = client.getHttpClient().newBuilder();
+//
+//		// Configure the Mastercard service URL
+//		//client.setBasePath("https://sandbox.api.mastercard.com/mdes");
+//		
+//		//client.setBasePath("https://sandbox.api.mastercard.com/mdes/csapi/v2/systemstatus");
+//		
+//
+//		// Load the signing key
+//		//PrivateKey signingKey = AuthenticationUtils.loadSigningKey("./path/to/your/signing-key.p12", "keyalias", "keystorepassword");
+//		PrivateKey signingKey = AuthenticationUtils.loadSigningKey("./MasterCardTokenizeTest-sandbox.p12", "keyalias", "keystorepassword");
+//
+//		// Add the interceptor code responsible for signing HTTP requests
+//		httpClientBuilder.addInterceptor(new OkHttpOAuth1Interceptor("6ynVPNsWkA59SZXvieIRJ7tbapzylu9jxaq3te4re9dca799!48da52e02dc44793a6cf0663a177e41c0000000000000000", signingKey));
+//		// ...
+//		client.setHttpClient(httpClientBuilder.build());
+//		
+//		
+//		System.out.println(client.getJSON().toString());
+//	}
+	
+/*	public static void main(String[] args) throws UnrecoverableKeyException, KeyStoreException, CertificateException, NoSuchAlgorithmException, FileNotFoundException, IOException {
+		// Loading the Signing Key
+		PrivateKey signingKey = AuthenticationUtils.loadSigningKey(
+                new FileInputStream("./MasterCardTokenizeTest-sandbox.p12"), 
+                "keyalias", 
+                "keystorepassword");
+		
+		// Creating the OAuth Authorization Header
+		String consumerKey = "<insert consumer key>";
+		URI uri = URI.create("https://sandbox.api.mastercard.com/service");
+		String method = "POST";
+		String payload = "Hello world!";
+		Charset charset = StandardCharsets.UTF_8;
+		String authHeader = OAuth.getAuthorizationHeader(uri, method, payload, charset, consumerKey, signingKey);
+		
+		System.out.println(authHeader);
+		
+		// Signing HTTP Client Request Objects
+		
+		
+	}*/
+	
+	public static void main(String[] args) throws Exception {
 		System.setProperty("proxyHost", "proxyad.itau");
 		System.setProperty("proxyPort", "8080");
-		System.setProperty("javax.net.ssl.trustStore", "8080");
-		System.setProperty("javax.net.ssl.trustStorePassword", "C:\\Users\\RDMARUI\\OneDrive - Banco Itaú SA\\Área de Trabalho\\CERTI_DIGITAL\\itau-rede-interna-truststore.jks");
-		System.setProperty("javax.net.ssl.trustStoreType", "JDK");
+		//System.setProperty("javax.net.ssl.trustStore", "8080");
+		/*System.setProperty("javax.net.ssl.trustStorePassword", "C:\\Users\\RDMARUI\\OneDrive - Banco Itaú SA\\Área de Trabalho\\CERTI_DIGITAL\\itau-rede-interna-truststore.jks");
+		System.setProperty("javax.net.ssl.trustStoreType", "JDK");*/
 		
 		
 		
 		
 		RestTemplate restTemplate = new RestTemplate();
-		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+		/*PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
 		connectionManager.setMaxTotal(100);
 		connectionManager.setDefaultMaxPerRoute(6);
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));
-		
+		*/
 		
 		
 		System.out.println("-----------");
 		String url = "https://sandbox.api.mastercard.com/mdes/csapi/v2/systemstatus";
 		String header = generateHeader(url, "", HttpMethod.GET);
-		
 		System.out.println("-----------");
-		
-		
 		
 		
 		HttpHeaders  headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.add(OAuth.AUTHORIZATION_HEADER_NAME, header);
 		
-		HttpEntity<String> request = new HttpEntity<String>(headers);
-		
 		HttpEntity entity = new HttpEntity(headers);
-		ResponseEntity<String> response = restTemplate.exchange(
-			    url, HttpMethod.GET, request, String.class);
 		
-		System.out.println(response.getBody());
+		ResponseEntity<String> response = restTemplate.exchange(
+			    url, HttpMethod.GET, entity, String.class);
 		
 		System.out.println("-----------");
+		System.out.println(response.getStatusCode());
+		System.out.println(response.getBody());
+		System.out.println("-----------");
+		
+		
 		
 		String payload = "{\r\n" + 
 				"  \"SearchRequest\": {\r\n" + 
@@ -51,23 +158,33 @@ public static void main(String[] args) throws Exception {
 				"  }\r\n" + 
 				"}";
 		
+		System.out.println(payload);
+
+
+		for(int x=0;x<100;x++) {
+			
+		
 		url = "https://sandbox.api.mastercard.com/mdes/csapi/v2/search";
 		header = generateHeader(url, payload, HttpMethod.POST);
 		
 		
 		
-//		RestTemplate restTemplate = new RestTemplate();
-//		HttpHeaders  headers = new HttpHeaders();
-//		headers.setContentType(MediaType.APPLICATION_JSON);
-//		headers.add(OAuth.AUTHORIZATION_HEADER_NAME, header);
-//		
-//		HttpEntity<String> request = new HttpEntity<String>(payload, headers);
-//		
-//		String personResultAsJsonStr = 
-//			      restTemplate.postForObject(url, request, String.class);
+		headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add(OAuth.AUTHORIZATION_HEADER_NAME, header);
+		entity = new HttpEntity<String>(payload, headers);
 		
+		/*String personResultAsJsonStr = 
+			      restTemplate.postForObject(url, request, String.class);*/
+		
+		response = restTemplate.exchange(
+			    url, HttpMethod.POST, entity, String.class);
+				
 		System.out.println("-----------");
-		
+		System.out.println(response.getStatusCode());
+		System.out.println(response.getBody());
+		System.out.println("-----------");
+		}
 		//System.out.println(personResultAsJsonStr);
 	}
 	
@@ -98,112 +215,159 @@ public static void main(String[] args) throws Exception {
 		
 		return header;
 	}
+	
+}
+------------
 
+package com.example.kafka.producer.mastercard.test;
+
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.mastercard.developer.oauth.OAuth;
+import com.mastercard.developer.utils.AuthenticationUtils;
+
+@RestController
+public class MasterCardController {
+
+	private static final Logger log = LogManager.getLogger(MasterCardController.class);
 	
-	-------------
+	private String url = "https://sandbox.api.mastercard.com/mdes/csapi/v2/search";
+	private String payload = "{\r\n" + 
+			"  \"SearchRequest\": {\r\n" + 
+			"    \"TokenUniqueReference\": \"DWSPMC00000000010906a349d9ca4eb1a4d53e3c90a11d9c\",\r\n" + 
+			"    \"AuditInfo\": {\r\n" + 
+			"      \"UserId\": \"A1435477\",\r\n" + 
+			"      \"UserName\": \"John Smith\",\r\n" + 
+			"      \"Organization\": \"Any Bank\",\r\n" + 
+			"      \"Phone\": \"5555551234\"\r\n" + 
+			"    }\r\n" + 
+			"  }\r\n" + 
+			"}";
 	
-	public static void main(String[] args) throws Exception {
-		/*System.setProperty("proxyHost", "proxyad.itau");
-		System.setProperty("proxyPort", "8080");
-		System.setProperty("javax.net.ssl.trustStore", "8080");
-		System.setProperty("javax.net.ssl.trustStorePassword", "C:\\Users\\RDMARUI\\OneDrive - Banco Itaú SA\\Área de Trabalho\\CERTI_DIGITAL\\itau-rede-interna-truststore.jks");
-		System.setProperty("javax.net.ssl.trustStoreType", "JDK");*/
+	RestTemplate restTemplate = new RestTemplate();
+	
+	@GetMapping(value = "masterCard", produces = javax.ws.rs.core.MediaType.TEXT_PLAIN)
+	public String teste() throws Exception {
+		String header = generateHeader(url, payload, HttpMethod.POST);
 		
-		
-		
-		
-		RestTemplate restTemplate = new RestTemplate();
-		/*PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-		connectionManager.setMaxTotal(100);
-		connectionManager.setDefaultMaxPerRoute(6);
-		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));*/
-		
-		
-		
-		System.out.println("-----------");
-		String url = "https://sandbox.api.mastercard.com/mdes/csapi/v2/systemstatus";
-		String header = generateHeader(url, "", HttpMethod.GET);
-		System.out.println("-----------");
-		
-		
-		HttpHeaders  headers = new HttpHeaders();
+		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.add(OAuth.AUTHORIZATION_HEADER_NAME, header);
-		
-		HttpEntity entity = new HttpEntity(headers);
-		
-		ResponseEntity<String> response = restTemplate.exchange(
-			    url, HttpMethod.GET, entity, String.class);
-		
-		System.out.println("-----------");
-		System.out.println(response.getStatusCode());
-		System.out.println(response.getBody());
-		System.out.println("-----------");
-		
-		System.out.println("-----------");
-		
-		String payload = "{\r\n" + 
-				"  \"SearchRequest\": {\r\n" + 
-				"    \"TokenUniqueReference\": \"DWSPMC00000000010906a349d9ca4eb1a4d53e3c90a11d9c\",\r\n" + 
-				"    \"AuditInfo\": {\r\n" + 
-				"      \"UserId\": \"A1435477\",\r\n" + 
-				"      \"UserName\": \"John Smith\",\r\n" + 
-				"      \"Organization\": \"Any Bank\",\r\n" + 
-				"      \"Phone\": \"5555551234\"\r\n" + 
-				"    }\r\n" + 
-				"  }\r\n" + 
-				"}";
-		
-		url = "https://sandbox.api.mastercard.com/mdes/csapi/v2/search";
-		header = generateHeader(url, payload, HttpMethod.POST);
-		
-		
-		
-		headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.add(OAuth.AUTHORIZATION_HEADER_NAME, header);
-		entity = new HttpEntity<String>(payload, headers);
+		HttpEntity<String> entity = new HttpEntity<String>(payload, headers);
 		
 		/*String personResultAsJsonStr = 
 			      restTemplate.postForObject(url, request, String.class);*/
 		
-		response = restTemplate.exchange(
+		ResponseEntity<String>response = restTemplate.exchange(
 			    url, HttpMethod.POST, entity, String.class);
 				
 		System.out.println("-----------");
-		System.out.println(response.getStatusCode());
-		System.out.println(response.getBody());
+		log.info(response.getStatusCode());
+		log.info(response.getBody());
 		System.out.println("-----------");
 		
-		//System.out.println(personResultAsJsonStr);
+		return response.getBody();
 	}
 	
 	
-	private static String generateHeader(String url, String payload, HttpMethod method) throws Exception {
+	
+	
+	
+	private  String generateHeader(String url, String payload, HttpMethod method) throws Exception {
 		String header = "";
+		PrivateKey signingKey = AuthenticationUtils.loadSigningKey("./MasterCardTokenizeTest-sandbox.p12","keyalias","keystorepassword");
 		
-		HttpHeaders httpHeaders = new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-	   
-	    PrivateKey signingKey = AuthenticationUtils.loadSigningKey("./keyalias-sandbox.p12", 
-                "keyalias", 
-                "keystorepassword1");
-		
-	    
-		String consumerKey = "6ynVPNsWkA59SZXvieIRJ7tbapzylu9jxaq3te4re9dca799!5f9bae87b9fa4b6faee7cfacfdce5e9f0000000000000000";
+		String consumerKey = "6ynVPNsWkA59SZXvieIRJ7tbapzylu9jxaq3te4re9dca799!48da52e02dc44793a6cf0663a177e41c0000000000000000";
 		URI uri = URI.create(url);
 		Charset charset = StandardCharsets.UTF_8;
-		
-		
-		for(int x=0;x<5;x++) {
-			header = OAuth.getAuthorizationHeader(uri, method.toString(), payload, charset, consumerKey, signingKey);
-			//httpHeaders.add(OAuth.AUTHORIZATION_HEADER_NAME, authHeader);
-			//httpHeaders.add("content-type", MediaType.APPLICATION_JSON_VALUE);
-			System.out.println(header);
-		}
-		
+				
+		header = OAuth.getAuthorizationHeader(uri, method.toString(), payload, charset, consumerKey, signingKey);
+		System.out.println(header);
 		
 		return header;
 	}
+}
+
+
+------------
+
+package com.example.kafka.producer.service.impl;
+
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+
+import com.example.kafka.producer.controller.ProducerController;
+import com.example.kafka.producer.service.AuthorizationCardService;
+import com.mastercard.developer.oauth.OAuth;
+import com.mastercard.developer.utils.AuthenticationUtils;
+
+@Service
+public class MasterAuthorizationCardServiceImpl implements AuthorizationCardService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ProducerController.class);
+	
+	 
+	
+	@Override
+	public String gerarHeaderToken(String url, String payload, HttpMethod method) {
+
+		String header = "";
+		PrivateKey signingKey = AuthenticationUtils.loadSigningKey("./MasterCardTokenizeTest-sandbox.p12","keyalias","keystorepassword");
+		
+		String consumerKey = "6ynVPNsWkA59SZXvieIRJ7tbapzylu9jxaq3te4re9dca799!48da52e02dc44793a6cf0663a177e41c0000000000000000";
+		URI uri = URI.create(url);
+		Charset charset = StandardCharsets.UTF_8;
+				
+		header = OAuth.getAuthorizationHeader(uri, method.toString(), payload, charset, consumerKey, signingKey);
+		System.out.println(header);
+		
+		return header;
+		
+	}
+
+}
+
+----------------------
+
+package com.example.kafka.producer.service;
+
+import org.springframework.http.HttpMethod;
+
+public interface AuthorizationCardService {
+
+	String gerarHeaderToken(String url, String payload, HttpMethod method);
+	
+}
+
+------
+
+package com.example.kafka.producer.service;
+
+public interface CardService {
+
+	
+	public void ativarToken(String tokenUniqueReference, String correlationId);
 	
 	
+}
