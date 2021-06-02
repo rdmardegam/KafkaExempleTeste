@@ -65,7 +65,18 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.5.13</version>
+		</dependency>
 
+		<dependency>
+		    <groupId>com.mastercard.developer</groupId>
+		    <artifactId>oauth1-signer</artifactId>
+		    <version>1.5.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
