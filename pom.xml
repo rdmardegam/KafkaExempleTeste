@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.0-SNAPSHOT</version>
+		<version>2.4.1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -23,6 +23,7 @@
 	</properties>
 
 	<dependencies>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -34,21 +35,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+		</dependency>		
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -57,26 +47,114 @@
 			<optional>true</optional>
 		</dependency>
 
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jdk8</artifactId>
-		</dependency>
+		<!-- <dependency> <groupId>com.fasterxml.jackson.datatype</groupId> <artifactId>jackson-datatype-jdk8</artifactId> 
+			</dependency> -->
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.apache.httpcomponents</groupId>
-		    <artifactId>httpclient</artifactId>
-		    <version>4.5.13</version>
+			<version>2.9.7</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
 
 		<dependency>
-		    <groupId>com.mastercard.developer</groupId>
-		    <artifactId>oauth1-signer</artifactId>
-		    <version>1.5.1</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.13</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
+
+	  <!-- MasterCard Oath -->
+		<dependency>
+			<groupId>com.mastercard.developer</groupId>
+			<artifactId>oauth1-signer</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+		
+		<!-- KAFKA -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>2.7.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<version>2.7.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- Circuite Breaker --> 
+		 <dependency>
+	      <groupId>io.github.resilience4j</groupId>
+	      <artifactId>resilience4j-spring-boot2</artifactId>
+	      <version>1.5.0</version>
+	    </dependency>
+	    
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-aop</artifactId>
+	    </dependency>
+
+		<!-- Micrometer -->
+		<dependency>
+		    <groupId>io.micrometer</groupId>
+		    <artifactId>micrometer-core</artifactId>
+		    <version>1.7.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>io.micrometer</groupId>
+		    <artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+
+
+
+
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.20</version>
+			<scope>provided</scope>
+		</dependency>
+
+<!-- 
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.7</version>
+		</dependency>
+ -->
+ 
+<!-- 			LOG 		-->
+		<!-- Dependencia do log -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+
+		<!-- Dependencias do logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+		<!-- Dependencia do encoder do logstash para o logback -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.0</version>
+        </dependency>
+
+        <dependency> 
+            <groupId>com.splunk.logging</groupId> 
+            <artifactId>splunk-library-javalogging</artifactId> 
+            <version>1.8.0</version> 
+        </dependency> 
+
 	</dependencies>
 
 	<build>
@@ -87,6 +165,7 @@
 			</plugin>
 		</plugins>
 	</build>
+	
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>
@@ -104,7 +183,16 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		
+		 <repository> 
+            <id>splunk-artifactory</id> 
+            <name>Splunk Releases</name> 
+            <url>https://splunk.jfrog.io/splunk/ext-releases-local</url> 
+        </repository> 
+		
 	</repositories>
+	
+	
 	<pluginRepositories>
 		<pluginRepository>
 			<id>spring-milestones</id>

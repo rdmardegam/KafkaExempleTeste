@@ -21,15 +21,17 @@ public class MessageConsumer {
         /*String key = consumerRecord.key();
         Message value = consumerRecord.value();
         int partition = consumerRecord.partition();*/
-
-        
-        System.out.println("*** CONSUMINDOOO");
+        System.out.println("****** CONSUMINDOOO *******");
         log.info("key: " + consumerRecord.key());
         log.info("Headers: " + consumerRecord.headers());
         log.info("Partion: " + consumerRecord.partition());
         log.info("Order: " + consumerRecord.value());
-        
         log.info("Event = {}", event);
+        
+        System.out.println("******              *******");
+        
+        
+        
         
         ack.acknowledge();
     }

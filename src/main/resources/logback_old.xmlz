@@ -1,0 +1,116 @@
+<configuration>
+
+    <appender name="out-json" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <fieldName>ts</fieldName>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                </loggerName>
+                <logLevel>
+                    <fieldName>severity</fieldName>
+                </logLevel>
+                <callerData>
+                    <classFieldName>class</classFieldName>
+                    <methodFieldName>method</methodFieldName>
+                    <lineFieldName>line</lineFieldName>
+                    <fileFieldName>file</fileFieldName>
+                </callerData>
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+                <mdc/>
+                <arguments>
+                    <includeNonStructuredArguments>false</includeNonStructuredArguments>
+                </arguments>
+                <stackTrace>
+                    <fieldName>stack</fieldName>
+                </stackTrace>
+                <message>
+                    <fieldName>message</fieldName>
+                </message>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="out-console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--
+            <pattern>%d{yyy-MM-dd} %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+             -->
+             <pattern>%d{yyy-MM-dd} %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+      <!--
+    <appender name="splunk" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	<file>${LOG_DIR}/log/splunk/splunk.log</file>
+	    <append>true</append>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">        
+	        <fileNamePattern>${LOG_DIR}/log/splunk/splunk.%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>
+	        <maxHistory>10</maxHistory>
+	    </rollingPolicy>
+	 
+	     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+        	<maxFileSize>50MB</maxFileSize>
+    	</triggeringPolicy>
+    	
+    	<layout>
+    		<pattern>{ %m, "data":"%d{yyyy-MM-dd HH:mm:ss}", "log_level":"%p" }%n</pattern>
+    	</layout>
+	</appender>  
+
+ 	<appender name="splunk" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+	    <url>http://localhost:8000/</url>
+	    <token>Admin123*</token>
+	    <disableCertificateValidation>true</disableCertificateValidation>
+	    <batch_size_count>1</batch_size_count>
+	    <layout class="ch.qos.logback.classic.PatternLayout">
+	      <pattern>%msg</pattern>
+	    </layout>
+	 </appender>
+	 -->
+
+	<appender name="splunk" class="io.policarp.logback.SplunkHecAppender">
+		<splunkUrl>http://localhost:8000/services/collector/event</splunkUrl>
+		<token>1234-5678-91011-ABC-321</token>
+		<buffer>25</buffer>
+		<flush>10</flush>
+		<parallelism>8</parallelism>
+
+		<layout class="io.policarp.logback.SplunkHecJsonLayout">
+			<source>my-application</source>
+			<custom>appversion=1</custom>
+			<custom>user=ADMINISTRADOR</custom>
+		</layout>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+
+	</appender>
+	 
+<!-- 
+	<logger name="splunk">
+		<appender-ref ref="splunk"/>
+	</logger>
+ -->
+
+    <root level="info">
+        <!--
+        <root level="info">
+        Can be custom your own environment (LOG_APPENDER)
+        to load a specify appender ( out-json or out-console ).
+        Default value: out-json
+        
+        <appender-ref ref="${LOG_APPENDER:-out-json}"/>
+        -->
+        <appender-ref ref="${LOG_APPENDER:-out-console}"/>
+        <appender-ref ref="splunk"/>
+        
+    </root> 
+
+
+</configuration>

@@ -1,34 +1,95 @@
 package com.example.kafka.producer.config;
 
+import java.io.FileInputStream;
+import java.security.KeyStore;
 import java.util.Collections;
 
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Configuration
 public class RestTemplateCertificadoConfig {
+	
+	private static final Logger log = LoggerFactory.getLogger(RestTemplateCertificadoConfig.class);
+	
+	@Value("${certificadoMaster.fileCertificateLocation}")
+	private String fileCertificateLocation;
+	
+	@Value("${certificadoMaster.signingKeyPassword}")
+	private String signingKeyPassword;
+	
+	@Value("${master.base.url}")
+	private String baseUrlApiMasterCard;
+	
 
+	@Autowired
+	RestTemplateInterceptor restTemplateInterceptor;
+	
 	@Bean
-	public RestTemplate restTemplate() {
-		RestTemplate template = new RestTemplate();
+	public RestTemplate restTemplate() throws Exception {
+		KeyStore clientStore = KeyStore.getInstance("PKCS12");
+		clientStore.load(new FileInputStream(fileCertificateLocation), signingKeyPassword.toCharArray());
 		
+	    SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+	    sslContextBuilder.setProtocol("TLS");
+	    sslContextBuilder.loadKeyMaterial(clientStore, signingKeyPassword.toCharArray());
+	    sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
+		
+	    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build());
+	    
+	    
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-		connectionManager.setMaxTotal(100);
-		connectionManager.setDefaultMaxPerRoute(6);
-		template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));
+		connectionManager.setMaxTotal(50);// Max connection
+		connectionManager.setDefaultMaxPerRoute(10); // Max Per Route
+//		template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));
+//		template.setInterceptors( Collections.singletonList(requestResponseLoggingInterceptor));
 		
-		template.setInterceptors( Collections.singletonList(new RequestResponseLoggingInterceptor()));
+		CloseableHttpClient client = HttpClientBuilder.create().
+									 setConnectionManager(connectionManager).
+									 setSSLSocketFactory(sslConnectionSocketFactory)
+									 .build();
+	    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
 		
-		System.out.println("RESTTEMPLATE INIT");
+	    
+	    RestTemplate template = new RestTemplate(new BufferingClientHttpRequestFactory(clientHttpRequestFactory));
+		template.setInterceptors( Collections.singletonList(restTemplateInterceptor));
+		template.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrlApiMasterCard));
 		
+		log.info("[RestTemplate] - Iniciado");
+		 
 		return template;
 	}
 	
 	
+//	@Bean
+//	public RestTemplate restTemplate() {
+//		RestTemplate template = new RestTemplate();
+//		
+//		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+//		connectionManager.setMaxTotal(100);
+//		connectionManager.setDefaultMaxPerRoute(6);
+//		template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));
+//		
+//		//template.setInterceptors( Collections.singletonList(new RequestResponseLoggingInterceptor()));
+//		
+//		System.out.println("RESTTEMPLATE INIT");
+//		
+//		return template;
+//	}
 	
 //	@Bean
 //	public RestTemplate restTemplate() throws Exception {

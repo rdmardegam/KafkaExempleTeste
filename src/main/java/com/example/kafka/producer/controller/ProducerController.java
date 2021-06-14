@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 @RestController
 public class ProducerController {
-
+	
 	@Autowired
 	private KafkaTemplate<String, Evento> kafkaTemplate;
 	
@@ -79,6 +79,9 @@ public class ProducerController {
 			System.out.println("VALOR:");
 			System.out.println(mapper.writeValueAsString(evento));
 			System.out.println("--------");
+			
+			
+			
 			
 			Message<Evento> event = MessageBuilder.
              withPayload(evento).

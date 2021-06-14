@@ -1,0 +1,17 @@
+<configuration>
+   
+ 	<appender name="splunk" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+	    <url>http://localhost:8000/</url>
+	    <token>Admin123*</token>
+	    <disableCertificateValidation>true</disableCertificateValidation>
+	    <batch_size_count>1</batch_size_count>
+	    <layout class="ch.qos.logback.classic.PatternLayout">
+	      <pattern>%msg</pattern>
+	    </layout>
+	 </appender>
+
+	<logger name="splunk">
+		<appender-ref ref="splunk"/>
+	</logger>
+ 
+</configuration>
