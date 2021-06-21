@@ -5,10 +5,12 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBindException;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
@@ -55,6 +57,8 @@ public class MasterCardConsumer {
 	
 	private final CircuitBreaker circuitBreaker;
 	
+	private CountDownLatch latch = new CountDownLatch(1);
+	
 	public MasterCardConsumer(CircuitBreakerRegistry circuitBreakerRegistry) {
 		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("masterCircuit");
 		this.circuitBreaker.getEventPublisher().onStateTransition(this::onStateChange);
@@ -98,7 +102,7 @@ public class MasterCardConsumer {
 		} catch (Exception e) {
 			// Trata-se de um erro recuperável?
 			final boolean recuperavel = isRecuperavel(e);
-
+  
 			// Caso erro não seja recuperavel
 			if (!recuperavel) {
 				LogSplunk.error(Splunk.builder().key("token.ativacao.erro.dlq")
@@ -170,7 +174,12 @@ public class MasterCardConsumer {
 		
 		if (e instanceof TechnicalException) {
 			// Problema com conexao ou timeout
-			if(e.getCause() instanceof  ResourceAccessException || e.getCause() instanceof UnknownHostException || e.getCause() instanceof ConnectException) {
+			if (e.getCause() instanceof ResourceAccessException || e.getCause() instanceof UnknownHostException
+					|| e.getCause() instanceof ConnectException
+					
+					|| e.getCause() instanceof ConfigurationPropertiesBindException
+					|| e.getCause() instanceof IllegalStateException
+					) {
 				isRecuperavel = true;
 			
 			} else if (e.getCause() instanceof HttpClientErrorException || e.getCause() instanceof HttpServerErrorException) {
@@ -235,4 +244,8 @@ public class MasterCardConsumer {
 		}
 	}
 
+	
+	public CountDownLatch getLatch() {
+        return latch;
+    }
 }

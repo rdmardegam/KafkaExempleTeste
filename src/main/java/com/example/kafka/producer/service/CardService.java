@@ -15,4 +15,6 @@ public interface CardService  extends Serializable {
 	public void ativarToken(String accountPan, String correlationId);
 	public Optional<List<Account>> listaContaToken (String accountPan);
 	
+	public String gerarBodyPesquisaTokens(String accountPan);
+	
 }

@@ -1,86 +1,29 @@
 <configuration>
 
-    <appender name="out-json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <timestamp>
-                    <fieldName>ts</fieldName>
-                    <timeZone>UTC</timeZone>
-                </timestamp>
-                <loggerName>
-                    <fieldName>logger</fieldName>
-                </loggerName>
-                <logLevel>
-                    <fieldName>severity</fieldName>
-                </logLevel>
-                <callerData>
-                    <classFieldName>class</classFieldName>
-                    <methodFieldName>method</methodFieldName>
-                    <lineFieldName>line</lineFieldName>
-                    <fileFieldName>file</fileFieldName>
-                </callerData>
-                <threadName>
-                    <fieldName>thread</fieldName>
-                </threadName>
-                <mdc/>
-                <arguments>
-                    <includeNonStructuredArguments>false</includeNonStructuredArguments>
-                </arguments>
-                <stackTrace>
-                    <fieldName>stack</fieldName>
-                </stackTrace>
-                <message>
-                    <fieldName>message</fieldName>
-                </message>
-            </providers>
-        </encoder>
-    </appender>
-
-    <appender name="out-console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <!--
-            <pattern>%d{yyy-MM-dd} %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
-             -->
-             <pattern>%d{yyy-MM-dd} %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-    
-    <appender name="splunk" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    	<file>${LOG_DIR}/log/splunk/splunk.log</file>
-	    <append>true</append>
-	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">        
-	        <fileNamePattern>${LOG_DIR}/log/splunk/splunk.%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>
-	        <maxHistory>10</maxHistory>
-	    </rollingPolicy>
-	 
-	     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-        	<maxFileSize>50MB</maxFileSize>
-    	</triggeringPolicy>
-    	
-    	<layout>
-    		<pattern>{ %m, "data":"%d{yyyy-MM-dd HH:mm:ss}", "log_level":"%p" }%n</pattern>
-    	</layout>
-	</appender>  
-
-
-	<logger name="splunk">
-		<appender-ref ref="splunk"/>
-	</logger>
+	 <include resource="org/springframework/boot/logging/logback/base.xml"/>
+	
+	  
+	 <Appender name="splunkWeb" class="com.splunk.logging.HttpEventCollectorLogbackAppender">
+		<url>http://localhost:8000</url>
+		<token>Admin123*</token>
+		<source>splunktest</source>
+        <sourcetype>battlecat</sourcetype>
+		<index>admin</index>
+		<disableCertificateValidation>true</disableCertificateValidation>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%msg</pattern>
+		</layout>
+	</Appender>
+	
+	<logger name="splunk.logger" additivity="false" level="INFO">
+        <appender-ref ref="splunkWeb"/>
+    </logger>
 
 
     <root level="info">
-        <!--
-        <root level="info">
-        Can be custom your own environment (LOG_APPENDER)
-        to load a specify appender ( out-json or out-console ).
-        Default value: out-json
-        
-        <appender-ref ref="${LOG_APPENDER:-out-json}"/>
-        -->
-        <appender-ref ref="${LOG_APPENDER:-out-console}"/>
-        <appender-ref ref="splunk"/>
-        
+        <appender-ref ref="splunkWeb"/>
     </root> 
 
+<!-- org.springframework.boot.logging.logback -->
 
 </configuration>

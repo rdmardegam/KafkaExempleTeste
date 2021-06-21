@@ -1,6 +1,5 @@
 package com.example.kafka.producer.service.impl;
 
-import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,20 +33,22 @@ public class MasterCardServiceImpl implements CardService {
 	private static final long serialVersionUID = -5865501114268560700L;
 	private static final Logger log = LogManager.getLogger(MasterCardServiceImpl.class);
 	
-	@Autowired
-	ObjectMapper objectMapper;
-	
-	@Autowired
-	AuthorizationOauthHeaderService authorizationCardService;
-	
-	@Autowired
-	RestTemplate restTemplate;
-	
 	// URLS
 	private static final String URL_SEARCH = "/search";
 	private static final String URL_ACTIVE = "/token/activate";
 	
+	// 
+	ObjectMapper objectMapper;
+	RestTemplate restTemplate;
 	
+	@Autowired
+	public MasterCardServiceImpl(ObjectMapper objectMapper, RestTemplate restTemplate) {
+		super();
+		this.objectMapper = objectMapper;
+		this.restTemplate = restTemplate;
+	}
+
+
 	@Override
 	@io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name="masterCircuit")
 	public void ativarToken(String accountPan, String correlationId) throws BaseException {
@@ -83,7 +84,7 @@ public class MasterCardServiceImpl implements CardService {
 
 			// Efetua chamada
 			ResponseEntity<String> response = 
-					restTemplate.exchange(URL_SEARCH, HttpMethod.POST, entity, String.class);
+					restTemplate.exchange("/search", HttpMethod.POST, entity, String.class);
 
 			// Recupera na linha do account o json
 			JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -154,7 +155,7 @@ public class MasterCardServiceImpl implements CardService {
 	}
 	
 	
-	 private String gerarBodyPesquisaTokens(String accountPan) {
+	 public String gerarBodyPesquisaTokens(String accountPan) {
 	   	 String requestJson = "{\r\n"
 	   	 		+ " \"SearchRequest\": {\r\n"
 	   	 		+ "   \"AccountPan\": \"%s\",\r\n"
