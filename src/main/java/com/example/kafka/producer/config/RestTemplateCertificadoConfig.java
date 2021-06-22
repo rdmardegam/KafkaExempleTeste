@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -40,6 +41,7 @@ public class RestTemplateCertificadoConfig {
 	RestTemplateInterceptor restTemplateInterceptor;
 	
 	@Bean
+	@Primary
 	public RestTemplate restTemplate() throws Exception {
 		KeyStore clientStore = KeyStore.getInstance("PKCS12");
 		clientStore.load(new FileInputStream(fileCertificateLocation), signingKeyPassword.toCharArray());

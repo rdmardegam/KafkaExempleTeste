@@ -1,9 +1,10 @@
 package com.example.kafka.producer.service.impl;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,10 @@ public class MasterCardServiceImplTest {
 		// Mockito.doReturn(response).when(restTemplate).exchange("/search",
 		// HttpMethod.POST, entity, String.class);
 
-		cardService.ativarToken("1234567890", "1234567890");
+		//cardService.ativarToken("1234567890", "1234567890");
+		String valor = cardService.gerarBodyPesquisaTokens("1234567890");
+		
+		assertTrue(valor.contains("1234567890"));
 	}
 
 }
