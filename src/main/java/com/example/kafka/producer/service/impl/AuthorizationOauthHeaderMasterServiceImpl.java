@@ -55,7 +55,7 @@ public class AuthorizationOauthHeaderMasterServiceImpl implements AuthorizationO
 			Charset charset = StandardCharsets.UTF_8;
 
 			header = OAuth.getAuthorizationHeader(uri, method.toString(), payload, charset, consumerKey, signingKey);
-			logger.info("HEADER: {}", header);
+			//logger.info("HEADER: {}", header);
 
 		} catch (UnrecoverableKeyException | KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new TechnicalException("Problema com o certificado ou geração do Header", e);

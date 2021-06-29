@@ -81,6 +81,10 @@ public class MasterCardConsumer {
 			// Tenta transformar o payload em Objeto
 			masterCard = mapper.readValue(payload, MasterCardDTO.class);
 
+			LogSplunk.info(Splunk.builder().key("token.ativacao2")
+					 	   .customMessage("Iniciando ativacao token")
+					       .payload(masterCard).build());
+			
 			// Filtra eventos permitidos
 			if (isEventoPermitido(masterCard)) {
 
@@ -97,7 +101,7 @@ public class MasterCardConsumer {
 				// Send log Sucesso
 				LogSplunk.info(Splunk.builder().key("solicita.ativacao.sucesso")
 						.customMessage("Token ativado com sucesso - CorrelationId: "+ masterCard.getCorrelationId())
-						.payload(payload).build());
+						.payload(masterCard).build());
 			}
 		} catch (Exception e) {
 			// Trata-se de um erro recuperável?

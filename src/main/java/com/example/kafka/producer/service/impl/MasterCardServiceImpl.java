@@ -58,7 +58,8 @@ public class MasterCardServiceImpl implements CardService {
 		
 		// valida campos de entrada
 		validaCamposAtivacaoToken(accountPan, correlationId);
-				
+		
+		
 		// Pesquisa contas e token
 		Optional<List<Account>> opAccount = this.listaContaToken(accountPan);
 		
@@ -67,7 +68,7 @@ public class MasterCardServiceImpl implements CardService {
 				.orElseThrow(() -> new BusinessException("Pan informado não localizado no retorno da masterCard PAN {} ", accountPan));
 		
 		// localiza o token baseado na listagem retornada
-		String tokenUniqueReference = findTokenUniqueReference(listAccount, correlationId);
+		String tokenUniqueReference = findTokenUniqueReference(listAccount, correlationId, accountPan);
 		
 		// Efetiva ativacao na master card
 		this.efetivaAtivacaoMastercard(tokenUniqueReference);
@@ -102,7 +103,7 @@ public class MasterCardServiceImpl implements CardService {
 	}
 	
 	
-	private String findTokenUniqueReference(final List<Account> listAccount , final String correlationId) throws BaseException {
+	private String findTokenUniqueReference(final List<Account> listAccount , final String correlationId, String accountPan) throws BaseException {
 		Optional<Token> opTokenFinded = Optional.ofNullable(null);
 		
 		for(Account account: listAccount) {
@@ -114,7 +115,7 @@ public class MasterCardServiceImpl implements CardService {
 		}
 		
 		//TODO VERIFICAR SE O TOKEN TEM QUE ESTAR EM ALGUMA CONDICAO
-		Token token = opTokenFinded.orElseThrow(() -> new BusinessException("CORRELATIONID:" + correlationId+ " - não localizado na MasterCard, retornoMaster:" + listAccount.toString()));
+		Token token = opTokenFinded.orElseThrow(() -> new BusinessException("CORRELATIONID:" + correlationId+ " - não localizado na MasterCard para o AccounPan:" + accountPan));
 		
 		/*if(!token.getCurrentStatusCode().equals("U")) {
 			throw new BusinessException("CORRELATIONID:" +correlationId+ " está com status diferente de 'U'; Status Atual:" +token.getCurrentStatusCode() + " - " + token.getCurrentStatusDescription() );

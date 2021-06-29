@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import pl.pojo.tester.api.assertion.Method;
 public class PojosTest {
-
 	
 	@Test
 	public void pojoAccountTest() {
@@ -60,8 +59,6 @@ public class PojosTest {
 	    
 	    assertTrue(token.toString() != null);
 	    assertTrue(token.equals(token));
-	    assertTrue(token.hashCode() != 0);
-	    
-	    
+	    assertTrue(token.hashCode() != 0);	    
 	}
 }
