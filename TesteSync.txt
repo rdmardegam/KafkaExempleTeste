@@ -1,0 +1,45 @@
+@Async("threadPoolTaskExecutor")
+	public CompletableFuture<Integer> findUser(Integer numero)  {
+		try {
+			Thread.sleep(1000L);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(numero == 20) {
+			throw new BusinessException("ERRO BUSS");
+		}
+		
+		System.out.println("EXECUTOU " +numero);
+		
+		return CompletableFuture.completedFuture(numero);
+	}
+  
+  
+  --------------
+  
+  List<CompletableFuture <?>> listFuture = new ArrayList<CompletableFuture<?>>();
+  listFuture.add(cardService.findUser(10));
+  listFuture.add(cardService.findUser(21));
+  listFuture.add(cardService.findUser(21));
+  
+  CompletableFuture.allOf(listFuture.toArray(new CompletableFuture[listFuture.size()])).join();
+  
+  System.out.println(listFuture.get(0).get());
+  
+  --------------
+  
+  @EnableAsync
+  
+  @Bean("threadPoolTaskExecutor")
+	public TaskExecutor  getAsyncExecutor() {
+	    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+	    executor.setCorePoolSize(20);
+	    executor.setMaxPoolSize(1000);
+	    executor.setQueueCapacity(500);
+	    executor.setWaitForTasksToCompleteOnShutdown(true);
+	    executor.setThreadNamePrefix("Async-");
+	    //executor.initialize();
+	    return executor;
+	  }
