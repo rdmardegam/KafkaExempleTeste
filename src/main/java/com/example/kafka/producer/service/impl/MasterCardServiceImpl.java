@@ -1,8 +1,10 @@
 package com.example.kafka.producer.service.impl;
 
+import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,11 +20,11 @@ import com.example.kafka.producer.exception.BusinessException;
 import com.example.kafka.producer.exception.TechnicalException;
 import com.example.kafka.producer.model.Account;
 import com.example.kafka.producer.model.Token;
-import com.example.kafka.producer.service.AuthorizationOauthHeaderService;
 import com.example.kafka.producer.service.CardService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.retry.annotation.Retry;
 
 @Service
@@ -37,20 +39,32 @@ public class MasterCardServiceImpl implements CardService {
 	private static final String URL_SEARCH = "/search";
 	private static final String URL_ACTIVE = "/token/activate";
 	
+	private int tentativa=0;
+	
 	// 
 	ObjectMapper objectMapper;
 	RestTemplate restTemplate;
+	
+	@Autowired
+	private RetryRegistry registry;
 	
 	@Autowired
 	public MasterCardServiceImpl(ObjectMapper objectMapper, RestTemplate restTemplate) {
 		super();
 		this.objectMapper = objectMapper;
 		this.restTemplate = restTemplate;
+		
+		 tentativa = 0;
+//		registry
+//        .retry("masterCircuit")
+//        .getEventPublisher()
+//        .onRetry(System.out::println);
 	}
 
 
 	@Override
 	@io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name="masterCircuit")
+	@Retry(name="masterCircuit")
 	public void ativarToken(String accountPan, String correlationId) throws BaseException {
 		
 		//Long a = Long.parseLong("a");
@@ -75,10 +89,15 @@ public class MasterCardServiceImpl implements CardService {
 	}
 
 
-	@Override
-	@Retry(name="masterCircuit")
-	public Optional<List<Account>> listaContaToken(String accountPan) throws BaseException {
+	
+//	@Retry(name="masterCircuit")
+	private Optional<List<Account>> listaContaToken(String accountPan) throws BaseException {
 		List<Account> listAccount = null;
+		
+		System.out.println("Tentativa = " + tentativa++);
+		
+//		if(true) throw new  TechnicalException(new ConnectException("TESTE"));
+		
 		try {
 			// Gerando payload
 			HttpEntity<String> entity = new HttpEntity<String>(gerarBodyPesquisaTokens(accountPan));
@@ -191,4 +210,25 @@ public class MasterCardServiceImpl implements CardService {
 	        
 	   	 return String.format(requestJson, tokenUniqueReference);
 	   }
+	 
+	 
+
+
+	//@Async("threadPoolTaskExecutor")
+	public CompletableFuture<Integer> findUser(Integer numero)  {
+		try {
+			Thread.sleep(1000L);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(numero == 20) {
+			throw new BusinessException("ERRO BUSS");
+		}
+		
+		System.out.println("EXECUTOU " +numero);
+		
+		return CompletableFuture.completedFuture(numero);
+	}
 }

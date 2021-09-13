@@ -2,11 +2,15 @@ package com.example.kafka.producer.controller;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,15 +22,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.kafka.producer.model.MasterCardDTO;
+import com.example.kafka.producer.service.CardService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 @RestController
 public class MasterCardProducerController {
 	
-	@Autowired
-	private KafkaTemplate<String, MasterCardDTO> kafkaTemplate;
+//	@Autowired
+//	private KafkaTemplate<String, MasterCardDTO> kafkaTemplate;
 	
+	@Autowired
+	private KafkaTemplate<String, Map<?, ?>> kafkaTemplate;
+	
+	@Autowired
+	private CardService cardService;
+	
+	@Autowired
+	private ObjectMapper mapper;
+	
+	private static final Logger logger = LoggerFactory.getLogger(MasterCardProducerController.class);
 	
 	@GetMapping(value = "/produzMasterCard", produces = MediaType.APPLICATION_JSON_VALUE)
 	public String produzMasterCard(	@RequestParam(name= "accountPan",required = false) String accountPan, 
@@ -34,14 +50,16 @@ public class MasterCardProducerController {
 		
 		//TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		
+		logger.info("INICIANDO CONTROLLER PRODUZMARTERCARD");
+		
 		MasterCardDTO masterCardDTO = new MasterCardDTO();
 		masterCardDTO.setNumeroCartao(accountPan);
 		masterCardDTO.setCorrelationId(correlationId);
 		masterCardDTO.setDataEvento(OffsetDateTime.now());
 		
 		//618 GOOGLE
-		//masterCardDTO.setNumeroCarteira(List.of("216","217","103","618").get(new Random().nextInt(4)));
-		masterCardDTO.setNumeroCarteira("618");
+		masterCardDTO.setNumeroCarteira(List.of("216","217","103","618").get(new Random().nextInt(4)));
+		//masterCardDTO.setNumeroCarteira("618");
 		
 		masterCardDTO.setIdCartao(UUID.randomUUID().toString());
 		masterCardDTO.setIdDispositivo(UUID.randomUUID().toString());
@@ -62,8 +80,15 @@ public class MasterCardProducerController {
 	             build();
 		
 		
-		var message = kafkaTemplate.send("MASTER_CARD_TOKEN_ACTIVATION", masterCardDTO.getNumeroCartao(), masterCardDTO).get(5, TimeUnit.SECONDS);
-		//var message = kafkaTemplate.send(record).get(5, TimeUnit.SECONDS);
+//		var message = kafkaTemplate.send("MASTER_CARD_TOKEN_ACTIVATION", masterCardDTO.getNumeroCartao(), masterCardDTO).get(5, TimeUnit.SECONDS);
+//      var message = kafkaTemplate.send(record).get(5, TimeUnit.SECONDS);
+		
+		var mapPayload = Collections.singletonMap("payload", masterCardDTO);
+		
+		
+		var message = kafkaTemplate.send("MASTER_CARD_TOKEN_ACTIVATION", masterCardDTO.getNumeroCartao(), mapPayload).get(5, TimeUnit.SECONDS);
+		
+		
 		
 		System.out.println(message.getProducerRecord().value());
 		
@@ -71,7 +96,18 @@ public class MasterCardProducerController {
 		
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		
-		return gson.toJson(masterCardDTO);
+		return gson.toJson(mapPayload);
+		//return jsonToSend;
+		
 	}	
+	
+	@GetMapping(value = "/testeRetry", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String testeRetry()  {
+		cardService.ativarToken("123123123", "123123123123");
+		
+//		cardService.listaContaToken("123123123");
+		
+		return "OK";
+	}
 	
 }

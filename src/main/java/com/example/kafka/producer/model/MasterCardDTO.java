@@ -1,5 +1,6 @@
 package com.example.kafka.producer.model;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import lombok.Data;
@@ -32,5 +33,16 @@ public class MasterCardDTO {
 	
 	// Campo utilizado internamente para log
 	private OffsetDateTime dataEvento;
+	
+	// Utilizados para retry
+	private Integer numeroTentativa;
+	private LocalDateTime dataHoraProximaTentativa;
+		
+	public Integer getNumeroTentativa() {
+		if(numeroTentativa==null) {
+			numeroTentativa = 0;
+		}
+		return numeroTentativa;
+	}
 	
 }

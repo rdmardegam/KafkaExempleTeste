@@ -3,6 +3,9 @@ package com.example.kafka.producer.service;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.scheduling.annotation.Async;
 
 import com.example.kafka.producer.exception.BaseException;
 import com.example.kafka.producer.model.Account;
@@ -13,8 +16,11 @@ public interface CardService  extends Serializable {
 //	public Optional<List<Account>> listaContaToken (String accountPan)  throws BaseException;
 	
 	public void ativarToken(String accountPan, String correlationId);
-	public Optional<List<Account>> listaContaToken (String accountPan);
+	//public Optional<List<Account>> listaContaToken (String accountPan);
 	
 	public String gerarBodyPesquisaTokens(String accountPan);
 	
+	
+	public CompletableFuture<Integer> findUser(Integer numero) throws InterruptedException;
+    
 }

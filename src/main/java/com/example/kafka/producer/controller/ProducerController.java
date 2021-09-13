@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -14,11 +18,15 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.kafka.producer.exception.TechnicalException;
 import com.example.kafka.producer.model.Evento;
 import com.example.kafka.producer.model.TipoEventoEnum;
+import com.example.kafka.producer.service.CardService;
+import com.example.kafka.producer.service.impl.MasterCardServiceImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -34,6 +42,9 @@ public class ProducerController {
 	@Autowired
     private Jackson2ObjectMapperBuilder builder;
 
+	
+	@Autowired
+	CardService cardService;
 	
 	@GetMapping(value = "/produzir")
 	public Evento getTest() {
@@ -109,6 +120,68 @@ public class ProducerController {
 			return null;
 		}	
 	}	
+	
+	@GetMapping(value = "/async")
+	public Long getTestAsync() throws InterruptedException {
+		long startTime = System.currentTimeMillis();
+		
+		List<CompletableFuture <?>> listFuture = new ArrayList<CompletableFuture<?>>();
+		
+		listFuture.add(cardService.findUser(10));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		listFuture.add(cardService.findUser(21));
+		
+		System.out.println("SEGUINDO");
+		
+		CompletableFuture.allOf(listFuture.toArray(new CompletableFuture[listFuture.size()])).join();
+	
+		System.out.println("AGUARDANDO");
+		
+		try {
+			System.out.println(listFuture.get(0).get());
+		} catch (InterruptedException | ExecutionException e1) {
+			// TODO Auto-generated catch block
+			throw new TechnicalException("TESTe");  
+		}
+		
+		
+		
+		
+		return System.currentTimeMillis() - startTime; 
+	}
+	
+	
+	
+	
 	
 	
 	
