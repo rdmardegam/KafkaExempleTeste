@@ -60,7 +60,8 @@
 
     <!--    Exemplo 1 - saida log é anexado somente em um arquivo -->
     <appender name="splunk" class="ch.qos.logback.core.FileAppender">
-        <file>${LOG_DIR_SPLUNK:-env/}/splunk.txt</file>
+        <!-- <file>${LOG_DIR_SPLUNK:-env/}/splunk.json</file>  -->
+        <file>c:/log/splunk.json</file> 
         <append>true</append>
            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         	  <includeContext>false</includeContext>
@@ -72,7 +73,7 @@
                 <timestamp>timestamp</timestamp>
                 <levelValue>[ignore]</levelValue>
                 <message>message</message>
-                <thread>thread</thread>
+                <thread>[ignore]</thread>
                 <logger>logger</logger>
                 <version>[ignore]</version>
                 <caller>[ignore]</caller>

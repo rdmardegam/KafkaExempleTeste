@@ -63,6 +63,10 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
 		splunk.setEndTime(OffsetDateTime.now());
 		LogSplunk.info(splunk);
 		
+		if (response != null) {
+			response.close();
+		}
+		
 		return response;
 	}
 

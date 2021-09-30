@@ -191,6 +191,21 @@
 		    <version>0.7.6</version>
 		    <scope>test</scope>
 		</dependency>
+
+
+		<!-- JWT JOSE -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk16</artifactId>
+			<version>1.46</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>9.1.2</version>
+		</dependency>
+
 				
 
 	</dependencies>
