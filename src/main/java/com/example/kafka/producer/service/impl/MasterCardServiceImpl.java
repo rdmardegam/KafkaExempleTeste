@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.annotation.Timed;
 
 @Service
 public class MasterCardServiceImpl implements CardService {
@@ -65,10 +66,13 @@ public class MasterCardServiceImpl implements CardService {
 	@Override
 	@io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name="masterCircuit")
 	@Retry(name="masterCircuit")
+	@Timed("metrica_ativarToken")
 	public void ativarToken(String accountPan, String correlationId) throws BaseException {
 		
 		//Long a = Long.parseLong("a");
 		//if(true) throw new  TechnicalException(new ConnectException("TESTE"));
+		
+		if(correlationId.equals("111")) throw new TechnicalException(new ConnectException("Teste Para retry/dlq"));
 		
 		// valida campos de entrada
 		validaCamposAtivacaoToken(accountPan, correlationId);
@@ -101,7 +105,16 @@ public class MasterCardServiceImpl implements CardService {
 		try {
 			// Gerando payload
 			HttpEntity<String> entity = new HttpEntity<String>(gerarBodyPesquisaTokens(accountPan));
-
+/*
+			RestTemplate  t = new RestTemplate();
+			
+			ResponseEntity<Object> response2 = 
+					t.exchange("https://teste123.free.beeceptor.com/teste502", 
+							HttpMethod.GET, entity, Object.class);
+			
+			System.out.println(response2.getStatusCodeValue());
+			*/
+			
 			// Efetua chamada
 			ResponseEntity<String> response = 
 					restTemplate.exchange("/search", HttpMethod.POST, entity, String.class);

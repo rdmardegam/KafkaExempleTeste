@@ -3,9 +3,11 @@ package com.example.kafka.producer.listener;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
@@ -148,9 +150,16 @@ public class MasterCardConsumer {
 		MasterCardDTO masterCard = null;
 		String payload = consumerRecord.value();
 		
+		consumerRecord.offset();
+		
+		LogSplunk.initLog(consumerRecord.topic() + consumerRecord.offset() + consumerRecord.partition(),
+				consumerRecord.topic() + consumerRecord.offset() + consumerRecord.partition() + "_" + UUID.randomUUID(),
+				consumerRecord.topic());
+		
 		try {
 			// Tenta transformar o payload em Objeto
 			masterCard = mapper.treeToValue(mapper.readTree(payload).get("payload"), MasterCardDTO.class);
+			
 			
 			LogSplunk.info(Splunk.builder().key("token.ativacao2")
 					 	   .customMessage("Iniciando ativacao token")
@@ -178,7 +187,7 @@ public class MasterCardConsumer {
 		} catch (Exception e) {
 			// Trata-se de um erro recuperável?
 			final boolean recuperavel = isRecuperavel(e);
-  
+			
 			// Caso erro não seja recuperavel
 			if (!recuperavel) {
 				
@@ -211,6 +220,7 @@ public class MasterCardConsumer {
 			ack.acknowledge();
 		}
 		
+		LogSplunk.finalizeLog();
 		System.out.println("TEMPO DECORRIDO - " + (System.currentTimeMillis() - startTime));
 	}
 	
@@ -359,7 +369,8 @@ public class MasterCardConsumer {
 				
 				// Erro ao chamar do nosso cliente (Itau) com a MasterCard
 				if (statusCode.is4xxClientError()) {
-					if(statusCode == HttpStatus.TOO_MANY_REQUESTS) {
+					if(statusCode == HttpStatus.TOO_MANY_REQUESTS ||
+						statusCode == 	HttpStatus.REQUEST_TIMEOUT) {
 						isRecuperavel = true;	
 					}
 				// Erro de processamento na masterCard, masterCard Mandou um erro

@@ -55,8 +55,8 @@ public class RestTemplateCertificadoConfig {
 	    
 	    
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-		connectionManager.setMaxTotal(50);// Max connection
-		connectionManager.setDefaultMaxPerRoute(10); // Max Per Route
+		connectionManager.setMaxTotal(100);// Max connection
+		connectionManager.setDefaultMaxPerRoute(50); // Max Per Route
 //		template.setRequestFactory(new HttpComponentsClientHttpRequestFactory(HttpClients.custom().setConnectionManager(connectionManager).build()));
 //		template.setInterceptors( Collections.singletonList(requestResponseLoggingInterceptor));
 		
@@ -65,7 +65,14 @@ public class RestTemplateCertificadoConfig {
 									 setSSLSocketFactory(sslConnectionSocketFactory)
 									 .build();
 	    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
-		
+
+	    // Define o tempo para estabeler uma conexao e o tempo para retorno da informacao
+	    //clientHttpRequestFactory.setConnectTimeout((int) Duration.ofSeconds(1).toMillis()); //Duration.ofSeconds
+	    //clientHttpRequestFactory.setReadTimeout((int) Duration.ofSeconds(1).toMillis());
+	    
+	    clientHttpRequestFactory.setConnectTimeout(1000*10); //Duration.ofSeconds
+	    clientHttpRequestFactory.setReadTimeout(1000*10);
+	    
 	    
 	    RestTemplate template = new RestTemplate(new BufferingClientHttpRequestFactory(clientHttpRequestFactory));
 		template.setInterceptors( Collections.singletonList(restTemplateInterceptor));

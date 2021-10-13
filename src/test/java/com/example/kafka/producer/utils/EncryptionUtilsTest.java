@@ -36,19 +36,35 @@
  */
 package com.example.kafka.producer.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import org.junit.Test;
+import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.net.jsse.PEMFile;
+import org.junit.jupiter.api.Test;
 
 import com.example.kafka.producer.teste.EncryptionUtils;
 import com.nimbusds.jose.EncryptionMethod;
@@ -64,7 +80,7 @@ public class EncryptionUtilsTest {
 
     private static final Logger LOGGER = Logger.getLogger(EncryptionUtilsTest.class.getName());
 
-    private static final String PLAIN_TEXT = "This is a plain text";
+    private static final String PLAIN_TEXT = " {\"nome_teste\": \"This is a plain text\"}";
 
     @Test
     public void createAndDecryptJweTestUsingSharedSecret() throws Exception {
@@ -137,29 +153,38 @@ public class EncryptionUtilsTest {
         assertEquals(payload, decryptedJWE);
     }
 
- /*   @Test
+    @Test
     public void createAndDecryptJweTestUsingRSAPKI() throws Exception {
         //Generate a random key pair
-        KeyPair keyPair = generateKeyPair();
+        //KeyPair keyPair = generateKeyPair();
 
-        PrivateKey privateKey = keyPair.getPrivate();
+        /*PrivateKey privateKey = keyPair.getPrivate();
         LOGGER.info("Generated Private Key: " + DatatypeConverter.printBase64Binary(privateKey.getEncoded()));
 
         PublicKey publicKey = keyPair.getPublic();
+        LOGGER.info("Generated Public Key: " + DatatypeConverter.printBase64Binary(publicKey.getEncoded()));*/
+
+        RSAPublicKey publicKey =  loadPublicKeyFromPemFile(Paths.get("C:\\Users\\Mike\\Desktop\\VISA CTV2\\Chaves\\Chave\\chavePublicaItau.pem").toFile());
         LOGGER.info("Generated Public Key: " + DatatypeConverter.printBase64Binary(publicKey.getEncoded()));
-
+    	
+        RSAPrivateKey privateKey = loadPrivateKeyFromPemFile(Paths.get("C:\\Users\\Mike\\Desktop\\VISA CTV2\\Chaves\\Chave\\chavePrivadaItau.pem").toFile());
+        LOGGER.info("Generated Private Key: " + DatatypeConverter.printBase64Binary(privateKey.getEncoded()));
+        
         //Generate Random KID
-        String kid = UUID.randomUUID().toString();
+        //String kid = UUID.randomUUID().toString();
+        String kid = "K_ID_GERADO";
         LOGGER.info("Kid: " + kid);
-
+        
+        
         Map<String, Object> jweHeaders = new HashMap<String, Object>();
         jweHeaders.put("iat", System.currentTimeMillis());
 
         String jwe = EncryptionUtils.createJwe(PLAIN_TEXT, kid, (RSAPublicKey) publicKey, JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM, jweHeaders);
         assertNotNull(jwe);
-
         verifyGeneratedJweHas5Parts(jwe);
         verifyGeneratedJweContainsAllHeaders(jwe, kid, jweHeaders);
+        LOGGER.info("Generated JWE: " + jwe);
+        
 
         Map<String, Object> jwsHeaders = new HashMap<String, Object>();
         long iat = System.currentTimeMillis() / 1000;
@@ -167,9 +192,12 @@ public class EncryptionUtilsTest {
         jwsHeaders.put("iat", iat);
         jwsHeaders.put("exp", exp);
 
-        String signingKid = UUID.randomUUID().toString();
+        String signingKid = "RAAAAM12";//UUID.randomUUID().toString();
         String jws = EncryptionUtils.createJws(jwe, signingKid, (RSAPrivateKey) privateKey, jwsHeaders);
+        
+        
         LOGGER.info("Generated JWS: " + jws);
+        //System.out.println("JWS2:" + new String(Base64.decodeBase64(jws),"UTF-8"));
         verifyGeneratedJwsHas3Parts(jws);
         verifyGeneratedJwsContainsAllHeaders(jws, signingKid, jwsHeaders);
 
@@ -178,7 +206,43 @@ public class EncryptionUtilsTest {
 
         String decryptedJWE = EncryptionUtils.decryptJwe(jweFromJws, (RSAPrivateKey) privateKey);
         assertEquals(PLAIN_TEXT, decryptedJWE);
-    }*/
+        System.out.println("DECRIPT:" +decryptedJWE);
+        
+        System.out.println("\n\n");
+        
+        System.out.println(DatatypeConverter.printBase64Binary(publicKey.getEncoded()));
+        System.out.println(jws);
+        
+    }
+    
+	private static RSAPublicKey loadPublicKeyFromPemFile(File publicKeyFile) throws Exception {
+		String key = new String(Files.readAllBytes(publicKeyFile.toPath()), Charset.defaultCharset());
+		String publicKeyPEM = key.replace("-----BEGIN PUBLIC KEY-----", "")
+				.replaceAll(System.lineSeparator(), "")
+				.replace("-----END PUBLIC KEY-----", "");
+		
+		byte[] encoded = new Base64().decode(publicKeyPEM);
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
+		
+		System.out.println("public");
+		System.out.println(keySpec.getFormat());
+		System.out.println(DatatypeConverter.printBase64Binary(keySpec.getEncoded()));
+		
+		
+		return (RSAPublicKey) keyFactory.generatePublic(keySpec);
+	}
+	
+	private static RSAPrivateKey loadPrivateKeyFromPemFile(File privateKeyFile) throws Exception {
+		String key = new String(Files.readAllBytes(privateKeyFile.toPath()), Charset.defaultCharset());
+		String privateKeyPEM = key.replace("-----BEGIN RSA PRIVATE KEY-----", "").replaceAll(System.lineSeparator(), "")
+				.replace("-----END RSA PRIVATE KEY-----", "");
+
+		byte[] encodedPrivateKey = new Base64().decode(privateKeyPEM.trim());
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		PKCS8EncodedKeySpec privSpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
+		return (RSAPrivateKey) keyFactory.generatePrivate(privSpec);
+	}
 
     private void verifyGeneratedJweHas5Parts(String jwe) {
         assertEquals(5, jwe.split("\\.").length);
