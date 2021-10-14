@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,43 +262,33 @@ public class LogSplunk {
 	
 	public static void finalizeLog() throws JsonProcessingException {
 		MDC.clear();
-		List<Map<String, Object>> mapLogs = new ArrayList<Map<String, Object>>();
+		
 		LogstashMarker l = net.logstash.logback.marker.Markers.empty();
-		
-		
 		List<Splunk> listSplunk = stepsThead.get(Thread.currentThread().getId());
-		
 		int [] index = new int [1] ; 
 		
-		listSplunk.forEach(item-> {
-			Map<String, Object> stepMap = new HashMap<String, Object>();
-			Map<String, Object> flatenedMap = new HashMap<String, Object>();
-			Map<String, Object> map = mapper.convertValue(item, Map.class);
-			
-			stepMap.put("_step", index[0]++);
-						
-			map.forEach((key, value) -> {
-			    	if(!key.equals("payload")) {
-				    	if(value instanceof Map) {
-					        flatenedMap.putAll((Map) value);
-					      } else {
-					        flatenedMap.put(key, value);
-					      }
-				    } else {
-				    	flatenedMap.put(key, value);
-				    }
-			    }  
-			);
-			
-			stepMap.put("conteudo", flatenedMap);
-			mapLogs.add(stepMap);
-		});
+		List<Map<String, Object>> mapLogs2 = listSplunk.stream()
+				.map(item -> (HashMap<String, Object>) mapper.convertValue(item, Map.class))
+				.map(mapItem -> {
+					Map<String, Object> flatenedMap = new HashMap<String, Object>();
+					mapItem.put("_step", index[0]++);
+					
+					mapItem.forEach((key, value) -> {
+						if (!key.equals("payload") || !(value instanceof Map) ) {
+							flatenedMap.put(key, value);
+						} else {
+							flatenedMap.putAll((Map) value);
+						}
+					});
+					return flatenedMap;
+				}).collect(Collectors.toCollection(ArrayList::new));
+		
 		
 		Splunk lastLog = listSplunk.get(listSplunk.size()-1);
 		// Add ultimo log na raiz
 		l = prepareLog3(lastLog);
 		// add lista dos steps
-		l.add(net.logstash.logback.marker.Markers.appendRaw("steps", mapper.writeValueAsString(mapLogs)));
+		l.add(net.logstash.logback.marker.Markers.appendRaw("steps", mapper.writeValueAsString(mapLogs2)));
 		
 		// Log 
 		if(lastLog.getException() != null) {
@@ -307,8 +297,60 @@ public class LogSplunk {
 			loggerSteps.info(l,lastLog.getCustomMessage());
 		}
 		
+		
 		MDC.clear();
 	}
+	
+	
+//	public static void finalizeLog() throws JsonProcessingException {
+//		MDC.clear();
+//		List<Map<String, Object>> mapLogs = new ArrayList<Map<String, Object>>();
+//		LogstashMarker l = net.logstash.logback.marker.Markers.empty();
+//		
+//		
+//		List<Splunk> listSplunk = stepsThead.get(Thread.currentThread().getId());
+//		
+//		int [] index = new int [1] ; 
+//		
+//		listSplunk.forEach(item-> {
+//			Map<String, Object> flatenedMap = new HashMap<String, Object>();
+//			Map<String, Object> map = mapper.convertValue(item, Map.class);
+//			
+//			map.put("_step", index[0]++);
+//				
+//			
+//			map.forEach((key, value) -> {
+//			    	if(!key.equals("payload")) {
+//				    	if(value instanceof Map) {
+//					        flatenedMap.putAll((Map) value);
+//					      } else {
+//					        flatenedMap.put(key, value);
+//					      }
+//				    } else {
+//				    	flatenedMap.put(key, value);
+//				    }
+//			    }  
+//			);
+//			
+//			//stepMap.put("conteudo", flatenedMap);
+//			mapLogs.add(flatenedMap);
+//		});
+//		
+//		Splunk lastLog = listSplunk.get(listSplunk.size()-1);
+//		// Add ultimo log na raiz
+//		l = prepareLog3(lastLog);
+//		// add lista dos steps
+//		l.add(net.logstash.logback.marker.Markers.appendRaw("steps", mapper.writeValueAsString(mapLogs)));
+//		
+//		// Log 
+//		if(lastLog.getException() != null) {
+//			loggerSteps.error(l,lastLog.getCustomMessage());	
+//		} else {
+//			loggerSteps.info(l,lastLog.getCustomMessage());
+//		}
+//		
+//		MDC.clear();
+//	}
 	
 	
 	public static void main(String[] args) {
