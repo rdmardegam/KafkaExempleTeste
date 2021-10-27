@@ -3,13 +3,13 @@ package com.example.kafka.producer.listener;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +73,9 @@ public class MasterCardConsumer {
 	
 	private CountDownLatch latch = new CountDownLatch(1);
 	
+	
+	private static long secondsMaxAwait = 30000;//30 seconds
+	
 	public MasterCardConsumer(CircuitBreakerRegistry circuitBreakerRegistry) {
 		this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("masterCircuit");
 		this.circuitBreaker.getEventPublisher().onStateTransition(this::onStateChange);
@@ -90,33 +93,61 @@ public class MasterCardConsumer {
 	//@Header("dataHoraProximaTentativa") long dataHoraProximaTentativa
 	@KafkaListener(id = "MASTER_CARD_TOKEN_RETRY1", topics = "MASTER_CARD_TOKEN_ACTIVATION_PRIMEIRO_RETRY", groupId = "consumer_group1")
 	public void messageListenerRetry(ConsumerRecord<String, String> consumerRecord, Acknowledgment ack ,  @Header(KafkaHeaders.RECEIVED_TIMESTAMP)  long ts ) throws Exception {
+//		System.out.println("\n\n");
+//		System.out.println("CONSUMINDO ************** RETRY 1");
+//		
+//		if(System.currentTimeMillis() >= ts + (1000 * 10) ) {
+//			System.out.println(" PROCESSANDO O RETRY 1 AGORA ");
+//			processMsg(consumerRecord, ack);	
+//		} else {
+//			System.out.println("Falta RETRY 1: " + (ts + (1000 * 10) - System.currentTimeMillis() ));
+//			
+//			ack.nack( (1000 * 5));
+//		}
+		
 		System.out.println("\n\n");
 		System.out.println("CONSUMINDO ************** RETRY 1");
-		
-		if(System.currentTimeMillis() >= ts + (1000 * 10) ) {
-			System.out.println(" PROCESSANDO O RETRY 1 AGORA ");
-			processMsg(consumerRecord, ack);	
-		} else {
-			System.out.println("Falta RETRY 1: " + (ts + (1000 * 10) - System.currentTimeMillis() ));
-			ack.nack( (1000 * 5));
-		}
+		preProcess(consumerRecord, ack, ts, TopicEnum.getTopicByName(consumerRecord.topic()));
 	}
 	
 	@KafkaListener(id = "MASTER_CARD_TOKEN_RETRY2", topics = "MASTER_CARD_TOKEN_ACTIVATION_SEGUNDO_RETRY", groupId = "consumer_group1")
-	public void messageListenerRetry2(ConsumerRecord<String, String> consumerRecord, Acknowledgment ack, @org.springframework.messaging.handler.annotation.Header(KafkaHeaders.RECEIVED_TIMESTAMP) long ts ) throws Exception {
+	public void messageListenerRetry2(ConsumerRecord<String, String> consumerRecord, Acknowledgment ack, @org.springframework.messaging.handler.annotation.Header(KafkaHeaders.RECEIVED_TIMESTAMP) long ts) throws Exception {
 		System.out.println("\n\n");
 		System.out.println("CONSUMINDO ************** RETRY 2");
+		preProcess(consumerRecord, ack, ts, TopicEnum.getTopicByName(consumerRecord.topic()));
+	}
+	
+//	private void preProcess(ConsumerRecord<String, String> consumerRecord, Acknowledgment ack , long ts, TopicEnum topicEnum) throws Exception {
+//		//System.out.println("**************-----------************");
+//		if (System.currentTimeMillis() >= ts + (topicEnum.getSecondsAwaitInMillis())) {
+//			System.out.println(" PROCESSANDO O RETRY " + topicEnum.getTopicName() + " AGORA");
+//			processMsg(consumerRecord, ack);
+//		} else {
+//			long tempoRestante = (ts + (topicEnum.getSecondsAwaitInMillis()) - System.currentTimeMillis());
+//			System.out.println("Falta " + tempoRestante + "Para executar o Topico"+ topicEnum.getTopicName());
+//			long tempNack = tempoRestante < secondsMaxAwait ? tempoRestante : secondsMaxAwait;
+//			// ack.nack(ts + (1000 * 10) - System.currentTimeMillis());
+//			ack.nack((tempNack));
+//		}
+//		//System.out.println("**************-----------************");
+//	}
+	
+	private void preProcess(ConsumerRecord<String, String> consumerRecord, Acknowledgment ack , long ts, TopicEnum topicEnum) throws Exception {
+		long tempoRestante = (ts + (topicEnum.getSecondsAwaitInMillis()) - System.currentTimeMillis());
+		long tempNack = tempoRestante < secondsMaxAwait ? tempoRestante : secondsMaxAwait;
 
-		//LogSplunk.info(Splunk.builder().key("RETRY 2").customMessage("RETRY 2").build());
-		
-		if(System.currentTimeMillis() >= ts + (1000 * 40)) {
-			System.out.println(" PROCESSANDO O RETRY 2 AGORA ");
+		System.out.println("##################################################");
+		System.out.println("Executando Retry = " +consumerRecord.topic());
+		System.out.println("TempoRestante = " +tempoRestante);
+		System.out.println("TempoNack = " +tempNack);
+		System.out.println("##################################################");
+		if(tempNack<=0) {
 			processMsg(consumerRecord, ack);
 		} else {
-			System.out.println("Falta RETRY 2 : " + (ts + (1000 * 40) - System.currentTimeMillis() ));
-			//ack.nack(ts + (1000 * 10) - System.currentTimeMillis());
-			ack.nack((1000 * 10));
+			ack.nack((tempNack));
 		}
+		
+		
 	}
 	
 	
@@ -240,6 +271,8 @@ public class MasterCardConsumer {
 		
 		
 		/*JsonNode jsonNode = mapper.readTree(mapper.valueToTree(retryOrDLQrMsg));*/
+		
+		long nextExecution = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
 		
 		// Monta informações do topico e destino
 		Message<Map<String, Object>> record = MessageBuilder.

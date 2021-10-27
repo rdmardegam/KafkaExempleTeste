@@ -75,7 +75,8 @@ public class RestTemplateCertificadoConfig {
 	    
 	    
 	    RestTemplate template = new RestTemplate(new BufferingClientHttpRequestFactory(clientHttpRequestFactory));
-		template.setInterceptors( Collections.singletonList(restTemplateInterceptor));
+		
+	    template.setInterceptors( Collections.singletonList(restTemplateInterceptor));
 		template.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrlApiMasterCard));
 		
 		log.info("[RestTemplate] - Iniciado");
