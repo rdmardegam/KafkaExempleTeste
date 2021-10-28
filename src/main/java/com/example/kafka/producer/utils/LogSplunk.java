@@ -90,13 +90,20 @@ public class LogSplunk {
 	
 	public static void info(Splunk splunk) {
 		MDC.clear();
-		logger.info(prepareLog3(splunk), splunk.getCustomMessage());
+		logger.info(prepareLog3(splunk,null), splunk.getCustomMessage());
 		MDC.clear();
 	}
 	
+	public static void info(Splunk splunk, Long threadIdUseAsync) {
+		MDC.clear();
+		logger.info(prepareLog3(splunk,threadIdUseAsync), splunk.getCustomMessage());
+		MDC.clear();
+	}
+	
+	
 	public static void error(Splunk splunk) {
 		MDC.clear();
-		logger.error(prepareLog3(splunk), splunk.getCustomMessage());
+		logger.error(prepareLog3(splunk,null), splunk.getCustomMessage());
 		MDC.clear();
 		//logger.error(prepareLog(splunk));
 	}
@@ -181,15 +188,17 @@ public class LogSplunk {
 		
 	}
 	
-	private static LogstashMarker prepareLog3(Splunk splunk) {
+	private static LogstashMarker prepareLog3(Splunk splunk, Long threadIdUseAsync) {
 		LogstashMarker l = net.logstash.logback.marker.Markers.empty();
+		
+		Long threadIdToUseLog = threadIdUseAsync != null ? threadIdUseAsync : Thread.currentThread().getId();
 		
 		try {
 			
-			if(uniqueKeyMap.containsKey(Thread.currentThread().getId())) {
-				MDC.put("uniqueKey", uniqueKeyMap.get(Thread.currentThread().getId())[0]);
-				MDC.put("uniqueExecutionKey", uniqueKeyMap.get(Thread.currentThread().getId())[1]);
-				MDC.put("topico", uniqueKeyMap.get(Thread.currentThread().getId())[2]);
+			if(uniqueKeyMap.containsKey(threadIdToUseLog)) {
+				MDC.put("uniqueKey", uniqueKeyMap.get(threadIdToUseLog)[0]);
+				MDC.put("uniqueExecutionKey", uniqueKeyMap.get(threadIdToUseLog)[1]);
+				MDC.put("topico", uniqueKeyMap.get(threadIdToUseLog)[2]);
 			}
 			
 			if(splunk.getStarTime() != null && splunk.getEndTime() !=null && (splunk.getElapseTime() == null || splunk.getElapseTime() == 0l)) {
@@ -250,7 +259,7 @@ public class LogSplunk {
 				});
 			}
 			
-			stepsThead.get(Thread.currentThread().getId()).add(splunk);
+			stepsThead.get(threadIdToUseLog).add(splunk);
 			
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -286,7 +295,7 @@ public class LogSplunk {
 		
 		Splunk lastLog = listSplunk.get(listSplunk.size()-1);
 		// Add ultimo log na raiz
-		l = prepareLog3(lastLog);
+		l = prepareLog3(lastLog,null);
 		// add lista dos steps
 		l.add(net.logstash.logback.marker.Markers.appendRaw("steps", mapper.writeValueAsString(mapLogs2)));
 		
