@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import net.logstash.logback.encoder.org.apache.commons.lang3.exception.ExceptionUtils;
 import net.logstash.logback.marker.LogstashMarker;
 
 public class LogSplunk {
@@ -233,7 +232,7 @@ public class LogSplunk {
 				
 				Map<String, Object> mapError = new HashMap<String, Object>();
 				mapError.put("erroMsg", Collections.singletonMap("error", splunk.getException().toString()));
-				mapError.put("trace", Collections.singletonMap("trace", ExceptionUtils.getStackTrace(splunk.getException())));
+				//mapError.put("trace", Collections.singletonMap("trace", ExceptionUtils.getStackTrace(splunk.getException())));
 				
 				splunk.addMoreInfo(Collections.singletonMap("error", mapError));
 				

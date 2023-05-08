@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import org.springframework.scheduling.annotation.Async;
-
 import com.example.kafka.producer.exception.BaseException;
 import com.example.kafka.producer.model.Account;
 
@@ -22,5 +20,13 @@ public interface CardService  extends Serializable {
 	
 	
 	public CompletableFuture<Integer> findUser(Integer numero) throws InterruptedException;
+	
+	public Optional<List<Account>> listaContaToken(String accountPan) throws BaseException; 
+	
+	public String listEligibleTokenRequestors(String accountRanger) throws BaseException;
+
+	public String findTokenRequestorAssetInfo(String assetId) throws BaseException;
+
+	public String pushTeste() throws  Exception;
     
 }

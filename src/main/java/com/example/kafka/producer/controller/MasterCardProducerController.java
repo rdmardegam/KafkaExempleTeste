@@ -74,7 +74,7 @@ public class MasterCardProducerController {
 		
 		Message<MasterCardDTO> record = MessageBuilder.
 	             withPayload(masterCardDTO).
-	             setHeader(KafkaHeaders.MESSAGE_KEY, masterCardDTO.getNumeroCartao()).
+	             setHeader(KafkaHeaders.MESSAGE_KEY,  /*masterCardDTO.getNumeroCartao()*/ Long.toString( Instant.now().toEpochMilli() )).
 	             setHeader(KafkaHeaders.TOPIC, "MASTER_CARD_TOKEN_ACTIVATION").
 	             setHeader(KafkaHeaders.TIMESTAMP, Instant.now().toEpochMilli()).
 	             build();
@@ -85,10 +85,11 @@ public class MasterCardProducerController {
 		
 		var mapPayload = Collections.singletonMap("payload", masterCardDTO);
 		
+		for(int x=0 ;x<10000;x++) {
+			kafkaTemplate.send("MASTER_CARD_TOKEN_ACTIVATION", masterCardDTO.getNumeroCartao(), mapPayload).get(5, TimeUnit.SECONDS);
+		}
 		
 		var message = kafkaTemplate.send("MASTER_CARD_TOKEN_ACTIVATION", masterCardDTO.getNumeroCartao(), mapPayload).get(5, TimeUnit.SECONDS);
-		
-		
 		
 		System.out.println(message.getProducerRecord().value());
 		

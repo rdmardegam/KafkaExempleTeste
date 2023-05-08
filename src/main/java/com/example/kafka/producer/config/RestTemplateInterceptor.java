@@ -86,7 +86,7 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
 				+ "  \"body\" : %s\r\n"
 				+ "}";
 		
-		logRequest =  String.format(logRequest, request.getURI(), request.getMethod(),new String(body, "UTF-8"));
+		logRequest =  String.format(logRequest, request.getURI(), request.getMethod(), body.length > 0 ? new String(body, "UTF-8") :"\"\"");
 		
 		// String json to map
 		ObjectMapper mapper = new ObjectMapper();

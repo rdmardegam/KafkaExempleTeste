@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seus Cartões de Crédito</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-details {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .card-details span {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .card-logo {
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .card-logo img {
+            max-width: 50px;
+        }
+
+        /* Personalizando o cartão Visa Infinite */
+        .card.visa-infinite {
+            border-color: #6E0AD6;
+            background-color: #6E0AD6;
+            color: #fff;
+        }
+
+        .card.visa-infinite .card-title {
+            color: #fff;
+        }
+
+        /* Personalizando o cartão Mastercard Black */
+        .card.mastercard-black {
+            border-color: #231F20;
+            background-color: #231F20;
+            color: #fff;
+        }
+
+        .card.mastercard-black .card-title {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Seus Cartões de Crédito</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card visa-infinite">
+                    <div class="card-body">
+                        <h5 class="card-title">Cartão Visa Infinite</h5>
+                        <div class="card-details">
+                            <p><span>Nome:</span> João Silva</p>
+                            <p><span>Últimos 4 dígitos:</span> 1234</p>
+                        </div>
+                        <div class="card-logo">
+                            <img src="https://example.com/visa-logo.png" alt="Visa Logo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mastercard-black">
+                    <div class="card-body">
+                        <h5 class="card-title">Cartão Mastercard Black</h5>
+                        <div class="card-details">
+                            <p><span>Nome:</span> Maria Souza</p>
+                            <p><span>Últimos 4 dígitos:</span> 5678</p>
+                        </div>
+                        <div class="card-logo">
+                            <img src="https://example.com/mastercard-logo.png" alt="Mastercard Logo">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    </body>
+</html>
+    

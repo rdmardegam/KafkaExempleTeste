@@ -18,8 +18,6 @@ import com.example.kafka.producer.model.AssincronoDTO;
 import com.example.kafka.producer.utils.LogSplunk;
 import com.example.kafka.producer.utils.Splunk;
 
-import net.logstash.logback.encoder.org.apache.commons.lang3.exception.ExceptionUtils;
-
 @Service
 public class TesteAssincronoService {
 

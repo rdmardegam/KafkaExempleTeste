@@ -1,46 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!--
 <configuration>
-     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-     <springProperty scope="context" name="springAppName" source="spring.application.name"/>
-     <springProperty scope="context" name="springAppId" source="spring.application.id"/>
-     
-    <property name="LOG_DIR" value="logs/app"/>
-    <property name="LOG_DIR_SPLUNK" value="G:/WORK/Docker/Splunk/logs_systems"/>
-	
-	<conversionRule conversionWord="maskedMsg" 
-            converterClass="ph.samson.logback.luhn.LuhnMaskingConverter" />
 
-
-    <!--    Log console-->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         	  <includeContext>true</includeContext>
               <includeCallerData>false</includeCallerData>
               <timeZone>GMT-3</timeZone>
               <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
               <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
-          
-            
-             <jsonGeneratorDecorator class="net.logstash.logback.decorate.CompositeJsonGeneratorDecorator">
-            	<decorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
-            	<!-- <decorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-                	<defaultMask>****</defaultMask>
-                	<valueMask>
-				      <value>.*TE*.</value>
-				    </valueMask>
-    	        </decorator>
-    	        -->
-        	</jsonGeneratorDecorator>
-        	
-        	<!-- 
-             <prefix class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-	             <layout  class="com.example.kafka.producer.MaskingPatternLayout">
-	            	 <patternsProperty>(teste)|(numeroCartao)</patternsProperty>
-	            	<pattern>%d [%thread] %-5level %logger{35}  - %msg%n - %mdc{hasMessage}</pattern>
-	        	</layout>
-	        </prefix>
-             -->
-            <fieldNames>
+              
+              
+              <fieldNames>
                 <timestamp>timestamp</timestamp>
                 <message>message</message>
                 <thread>[ignore]</thread>
@@ -49,45 +19,103 @@
                 <levelValue>[ignore]</levelValue>
                 <caller>[ignore]</caller>
                 <stackTrace>exception</stackTrace>
-                <!-- <mdc>context</mdc> -->
                 
             </fieldNames>
-
-          	 
-        </encoder>
-    </appender> 
-
-
-    <!--    Exemplo 1 - saida log é anexado somente em um arquivo -->
-    <appender name="splunk" class="ch.qos.logback.core.FileAppender">
-        <!-- <file>${LOG_DIR_SPLUNK:-env/}/splunk.json</file>  -->
-        <file>c:/log/splunk.json</file> 
-        <append>true</append>
-           <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-        	  <includeContext>false</includeContext>
-              <includeCallerData>false</includeCallerData>
-            <timeZone>GMT-3</timeZone>
-            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
-            
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <levelValue>[ignore]</levelValue>
-                <message>message</message>
-                <thread>[ignore]</thread>
-                <logger>logger</logger>
-                <version>[ignore]</version>
-                <caller>[ignore]</caller>
-                <stackTrace>exception</stackTrace>
-                <!-- <mdc>context</mdc> -->
-            </fieldNames>
-
-          	
+              
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <valueMasker class="com.example.kafka.producer.utils.MaskingConverter"/>
+            </jsonGeneratorDecorator>
         </encoder>
     </appender>
 
-    
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="splunk"/>
+    <root level="INFO">
+        <appender-ref ref="mask" />
     </root>
+
 </configuration>
+-->
+
+
+<configuration>
+
+    <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+           	   <timestamp>
+                 <fieldName>timestamp</fieldName>
+                 <timeZone>GMT-3</timeZone>
+                </timestamp>
+                <logLevel>
+                    <fieldName>level</fieldName>
+                </logLevel>
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+                <callerData>
+                    <classFieldName>class</classFieldName>
+                    <methodFieldName>method</methodFieldName>
+                    <lineFieldName>line</lineFieldName>
+                </callerData>
+                <mdc/>
+                <arguments>
+                    <includeNonStructuredArguments>false</includeNonStructuredArguments>
+                </arguments>
+                <stackTrace>
+                    <fieldName>stack</fieldName>
+                </stackTrace>
+        
+                <pattern>
+                    <pattern>
+                        {
+                             <!-- "level": "%level",
+                            "thread": "%thread",
+                            "logger": "%logger",
+                              -->
+                              
+                            "message": "#tryJson{%msg}"
+                        }
+                    </pattern>
+                </pattern>
+             
+                
+            </providers>
+            
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <valueMasker class="com.example.kafka.producer.utils.MaskingConverter"/>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="mask" />
+    </root>
+
+</configuration>
+ <!-- 
+<configuration>
+ <appender name="mask" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - #tryJson{%msg}%n</pattern>
+        </encoder>
+    </appender>
+    
+    
+</configuration>
+ -->
+<!--
+
+
+<configuration>
+	<conversionRule conversionWord="maskedMsg"
+		converterClass="ph.samson.logback.luhn.LuhnMaskingConverter" />
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+		
+			<pattern>%date [%thread] - %maskedMsg%n</pattern>
+		</encoder>
+	</appender>
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>  -->

@@ -47,6 +47,8 @@ public class MasterCardController {
 		}
 		return "OK";
 	}
+	
+	
 
 	private void logTechnicalExeption(Exception e) {
 		
